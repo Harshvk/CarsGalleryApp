@@ -3,18 +3,21 @@ import UIKit
 class ListToGridVC: UIViewController {
 
     //CollectionView Outlet
-    @IBOutlet weak var CarsCollection: UICollectionView!
+    @IBOutlet weak var carsCollection: UICollectionView!
     
     //ChangeViewButton Outlet
     @IBOutlet weak var changeViewBtnOutlet: UIButton!
     
+    var cellSelectCell = false
 
     //Variable to check whether showing list or grid view
-    var flowToDisplay = flow.list
+    var flowToDisplay = Flow.list
     
-    
+    let gridFlowLayout = ProductsGridFlowLayout()
+    let listFlowLayout = ProductsListFlowLayout()
+
     //input data
-    var CarData : [[String:String]] = [
+    var carData : [[String:String]] = [
         
         ["Name" : "Ford" ,          "Image" : "ford"],
         ["Name" : "Porsche" ,       "Image" : "porsche"],
@@ -37,15 +40,24 @@ class ListToGridVC: UIViewController {
 
         //Adding Nib of cells to collection view
         let nibList = UINib(nibName: "ListCell", bundle: nil)
-        CarsCollection.register(nibList, forCellWithReuseIdentifier: "ListCellID")
+        carsCollection.register(nibList, forCellWithReuseIdentifier: "ListCellID")
         
         let nibGrid = UINib(nibName: "GridCell", bundle: nil)
-        CarsCollection.register(nibGrid, forCellWithReuseIdentifier: "GridCellID")
+        carsCollection.register(nibGrid, forCellWithReuseIdentifier: "GridCellID")
 
     
-       //Setting Datasource and Delegates of Collection view
-       CarsCollection.dataSource = self
-       CarsCollection.delegate = self
+        //Setting Datasource and Delegates of Collection view
+        carsCollection.dataSource = self
+        carsCollection.delegate = self
+        
+        //Defining initial flowlayout
+        carsCollection.collectionViewLayout = listFlowLayout
+        
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(selecetCell))
+        longPressGesture.delegate = self
+        longPressGesture.minimumPressDuration = 0.5
+        carsCollection.addGestureRecognizer(longPressGesture)
+        carsCollection.allowsSelection = false
         
     }
 
@@ -59,37 +71,92 @@ class ListToGridVC: UIViewController {
     //MARK: IBActions
     @IBAction func changeViewBtn(_ sender: UIButton)
     {
- 
-        if changeViewBtnOutlet.isSelected == true
-        {
         
-            flowToDisplay = flow.grid
-            changeViewBtnOutlet.isSelected = false
-
+        
+        if changeViewBtnOutlet.isHighlighted
+        {
+            
+            if changeViewBtnOutlet.isSelected
+            {
+                
+                for (index,_) in carData.enumerated().reversed(){
+                    
+                    let indexPathh : IndexPath = [0 , index]
+               let cell = carsCollection.cellForItem(at: indexPathh) as! GridCell
+                if (cell.isSelected){
+                    
+                    carData.remove(at: index)
+                    
+                }
+                
+            }
+            }else
+            {
+                
+                for (index,_) in carData.enumerated().reversed(){
+                    
+                    let indexPathh : IndexPath = [0 , index]
+                    let cell = carsCollection.cellForItem(at: indexPathh) as! ListCell
+                    if (cell.isSelected){
+                        
+                        carData.remove(at: index)
+                        
+                    }
+                
+                }
+            }
+            self.carsCollection.reloadData()
+            changeViewBtnOutlet.isHighlighted = false
         }
         else
         {
-            flowToDisplay = flow.list
-            changeViewBtnOutlet.isSelected = true
+        
+            self.carsCollection.reloadData()
+            
+            if changeViewBtnOutlet.isSelected == true
+            {
+        
+                flowToDisplay = Flow.grid
+                changeViewBtnOutlet.isSelected = false
+
+                UIView.animate(withDuration: 0.5) { () -> Void in
+                    self.carsCollection.collectionViewLayout.invalidateLayout()
+                    self.carsCollection.setCollectionViewLayout(self.gridFlowLayout, animated: true)
+                }
+            
+            }
+            else
+            {
+                flowToDisplay = Flow.list
+                changeViewBtnOutlet.isSelected = true
+
+                UIView.animate(withDuration: 0.5) { () -> Void in
+                    self.carsCollection.collectionViewLayout.invalidateLayout()
+                    self.carsCollection.setCollectionViewLayout(self.listFlowLayout, animated: true)
+
+                }
+           
+
+            }
             
         }
-        
 
-        self.CarsCollection.reloadData()
+       
         
+                
     }
     
     
  }
 
 //MARK: CollectionViewDelegate ,DataSource and FlowLayoutDelegate
-extension ListToGridVC : UICollectionViewDelegate , UICollectionViewDataSource ,UICollectionViewDelegateFlowLayout{
+extension ListToGridVC : UICollectionViewDelegate , UICollectionViewDataSource ,UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate{
     
     
     //Defining no of items
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int{
         
-        return CarData.count
+        return carData.count
         
     }
     
@@ -97,16 +164,16 @@ extension ListToGridVC : UICollectionViewDelegate , UICollectionViewDataSource ,
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell{
         
         //Converting JSON data to CarModel type
-        let car = CarModel(withJSON: CarData[indexPath.item])
+        let car = CarModel(withJSON: carData[indexPath.item])
 
-        if flowToDisplay == flow.grid
+        if flowToDisplay == Flow.grid
         {
             //Making and configuring object of cell
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GridCellID", for: indexPath) as! GridCell
             cell.configureCell(withCar: car)
-//            cell.layer.borderWidth = 1
-//            cell.layer.borderColor = UIColor.black.cgColor
-            print("cell made")
+            cell.layer.borderWidth = 1
+            cell.layer.borderColor = UIColor.black.cgColor
+            print("grid made")
             
             return cell
         
@@ -116,9 +183,9 @@ extension ListToGridVC : UICollectionViewDelegate , UICollectionViewDataSource ,
             //Making and configuring object of cell
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ListCellID", for: indexPath) as! ListCell
             cell.configureCell(withCar: car)
-//            cell.layer.borderWidth = 1
-//            cell.layer.borderColor = UIColor.black.cgColor
-            print("cell made")
+            cell.layer.borderWidth = 1
+            cell.layer.borderColor = UIColor.black.cgColor
+            print("list made")
 
             return cell
         }
@@ -126,30 +193,58 @@ extension ListToGridVC : UICollectionViewDelegate , UICollectionViewDataSource ,
         
     }
     
-    //Setting up size of items of collectionview
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize{
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath){
         
-        
-        if flowToDisplay == flow.grid{
-            
-            return CGSize(width: 187, height: 120)
-            
-        }else{
-            
-            return CGSize(width: 375, height: 89)
-            
-        }
-        
+        let cell = self.carsCollection.cellForItem(at: indexPath)
+        cell?.backgroundColor = UIColor.black
+        print(indexPath)
     }
     
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath){
+        
+        let cell = self.carsCollection.cellForItem(at: indexPath)
+        cell?.backgroundColor = UIColor.lightGray
+    }
+    
+    func selecetCell(gesture : UILongPressGestureRecognizer!){
+        if gesture.state == .ended {
+            return
+        }
+        carsCollection.allowsMultipleSelection = true
+        carsCollection.allowsSelection = true
+
+        self.changeViewBtnOutlet.isHighlighted = true
+        self.changeViewBtnOutlet.isSelected = false
+        
+        let p = gesture.location(in: self.carsCollection)
+
+        if let indexPath = self.carsCollection.indexPathForItem(at: p) {
+            // get the cell at indexPath (the one you long pressed)
+            
+            let cell : UICollectionViewCell!
+            
+            if flowToDisplay == Flow.grid{
+                cell = self.carsCollection.cellForItem(at: indexPath) as! GridCell
+            }else{
+                cell = self.carsCollection.cellForItem(at: indexPath) as! ListCell
+            }
+          
+            cell.isSelected = true
+
+            // do stuff with the cell
+        } else {
+            print("couldn't find index path")
+            carsCollection.allowsMultipleSelection = false
+            carsCollection.allowsSelection = false
+        }
+    }
 
     
-    
-    
-}
+    }
 
-//
-enum flow {
+
+// defining an enum for flow
+enum Flow {
     
     case list,grid
     

@@ -33,7 +33,7 @@
                                 </collectionViewFlowLayout>
                                 <cells/>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2NC-O3-T7A">
+                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2NC-O3-T7A">
                                 <rect key="frame" x="329" y="25" width="30" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="P2U-wt-WNu"/>
@@ -41,6 +41,7 @@
                                 </constraints>
                                 <state key="normal" image="list"/>
                                 <state key="selected" image="grid"/>
+                                <state key="highlighted" image="delete"/>
                                 <connections>
                                     <action selector="changeViewBtn:" destination="jBN-bX-lRx" eventType="touchUpInside" id="Q1p-q0-TPa"/>
                                 </connections>
@@ -67,7 +68,7 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="CarsCollection" destination="5aw-Za-aIW" id="eLH-YN-yOF"/>
+                        <outlet property="carsCollection" destination="5aw-Za-aIW" id="mVM-V2-KSp"/>
                         <outlet property="changeViewBtnOutlet" destination="2NC-O3-T7A" id="JsS-0B-C5t"/>
                     </connections>
                 </viewController>
@@ -77,6 +78,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="delete" width="30" height="30"/>
         <image name="grid" width="30" height="30"/>
         <image name="list" width="30" height="30"/>
     </resources>
