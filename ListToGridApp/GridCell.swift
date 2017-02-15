@@ -20,7 +20,9 @@ class GridCell: UICollectionViewCell {
         
     }
     
-      
+    override func prepareForReuse() {
+        self.backgroundColor = nil
+    }
     
     func configureCell(withCar car: CarModel){
         

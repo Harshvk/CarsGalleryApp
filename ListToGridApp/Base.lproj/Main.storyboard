@@ -41,7 +41,6 @@
                                 </constraints>
                                 <state key="normal" image="list"/>
                                 <state key="selected" image="grid"/>
-                                <state key="highlighted" image="delete"/>
                                 <connections>
                                     <action selector="changeViewBtn:" destination="jBN-bX-lRx" eventType="touchUpInside" id="Q1p-q0-TPa"/>
                                 </connections>
@@ -52,6 +51,17 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e9E-An-bW7">
+                                <rect key="frame" x="299" y="25" width="30" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="Xcd-QE-lva"/>
+                                    <constraint firstAttribute="width" constant="30" id="trI-g1-Bw9"/>
+                                </constraints>
+                                <state key="normal" image="delete"/>
+                                <connections>
+                                    <action selector="deleteBtnAction:" destination="jBN-bX-lRx" eventType="touchUpInside" id="kdu-HW-2EI"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -62,14 +72,17 @@
                             <constraint firstItem="2NC-O3-T7A" firstAttribute="top" secondItem="ljV-vo-xHh" secondAttribute="bottom" constant="5" id="Gyr-Cp-rma"/>
                             <constraint firstItem="2NC-O3-T7A" firstAttribute="leading" secondItem="dWV-6K-ykV" secondAttribute="trailing" constant="8" id="H7f-B3-aAu"/>
                             <constraint firstItem="5aw-Za-aIW" firstAttribute="top" secondItem="ljV-vo-xHh" secondAttribute="bottom" constant="48" id="PXn-On-FYf"/>
+                            <constraint firstItem="2NC-O3-T7A" firstAttribute="leading" secondItem="e9E-An-bW7" secondAttribute="trailing" id="Pj7-2C-xdN"/>
                             <constraint firstAttribute="leadingMargin" secondItem="dWV-6K-ykV" secondAttribute="leading" constant="-46" id="eVy-5Y-Xf2"/>
                             <constraint firstAttribute="trailing" secondItem="5aw-Za-aIW" secondAttribute="trailing" id="uGj-jk-YJK"/>
                             <constraint firstItem="5aw-Za-aIW" firstAttribute="leading" secondItem="2ex-Sl-olt" secondAttribute="leading" id="usw-ck-vFn"/>
+                            <constraint firstItem="e9E-An-bW7" firstAttribute="top" secondItem="2NC-O3-T7A" secondAttribute="top" id="wVT-5g-XK5"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="carsCollection" destination="5aw-Za-aIW" id="mVM-V2-KSp"/>
                         <outlet property="changeViewBtnOutlet" destination="2NC-O3-T7A" id="JsS-0B-C5t"/>
+                        <outlet property="deleteBtnOutlet" destination="e9E-An-bW7" id="NWX-Zc-cUR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="m7U-4c-EyI" userLabel="First Responder" sceneMemberID="firstResponder"/>
