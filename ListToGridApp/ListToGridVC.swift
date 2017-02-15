@@ -9,8 +9,12 @@ class ListToGridVC: UIViewController {
 
     @IBOutlet weak var deleteBtnOutlet: UIButton!
     
+    @IBOutlet weak var selectCountLabel: UILabel!
     //array of indexPaths of selected Items
-    var selectedCellsIndexPath = [IndexPath]()
+    var cellsToBeDeleted = [IndexPath]()
+    
+    var deleteMode = DeleteMode.off
+    var selectedCellIndexPath : IndexPath?
     
     //Variable to check whether showing list or grid view
     var flowToDisplay = Flow.list
@@ -57,12 +61,13 @@ class ListToGridVC: UIViewController {
         carsCollection.collectionViewLayout = listFlowLayout
         
         //Setting up Gesture recogniser
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(selecetCell))
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(selecetCellOnLongPress))
         longPressGesture.delegate = self
         longPressGesture.minimumPressDuration = 0.5
         carsCollection.addGestureRecognizer(longPressGesture)
       
-        deleteToChangeView()
+        deleteBtnOutlet.isEnabled = false
+        deleteBtnOutlet.isHidden = true
     }
 
     override func didReceiveMemoryWarning() {
@@ -109,7 +114,7 @@ class ListToGridVC: UIViewController {
     
     @IBAction func deleteBtnAction(_ sender: UIButton) {
         
-        for index in selectedCellsIndexPath.sorted().reversed(){
+        for index in cellsToBeDeleted.sorted().reversed(){
             
             carData.remove(at: index.row)
             carsCollection.deleteItems(at: [index])
@@ -117,7 +122,7 @@ class ListToGridVC: UIViewController {
         }
         
         deleteToChangeView()
-        selectedCellsIndexPath.removeAll()
+        cellsToBeDeleted.removeAll()
 
         
     }
@@ -133,8 +138,10 @@ class ListToGridVC: UIViewController {
         self.deleteBtnOutlet.isHidden = true
         self.deleteBtnOutlet.isEnabled = false
         
-        carsCollection.allowsSelection = false
-        
+        carsCollection.allowsMultipleSelection = false
+        deleteMode = DeleteMode.off
+        selectCountLabel.text = ""
+
         
     }
     //Hideshow changeView  and delete Button Button
@@ -196,58 +203,117 @@ extension ListToGridVC : UICollectionViewDelegate , UICollectionViewDataSource ,
         
     }
     
+    //defining what to do when selecting a cell
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath){
-        let cell = self.carsCollection.cellForItem(at: indexPath)
-        cell?.backgroundColor = UIColor.black
-        if !(selectedCellsIndexPath.contains(indexPath)){
-        selectedCellsIndexPath.append(indexPath)
+       
+        // to check if some cell is already selected with deletemodeOff
+        if let cellToDeselect = selectedCellIndexPath{
+            carsCollection.deselectItem(at: cellToDeselect, animated: false)
+            carsCollection.cellForItem(at: cellToDeselect)?.alpha = 1
+            selectedCellIndexPath = nil
         }
+        
+        //When a cell is selected with deleteModeOn this block of code is called
+        if deleteMode == .on
+        {
+            if cellsToBeDeleted.count == 5
+            {
+            
+                carsCollection.deselectItem(at: indexPath, animated: false)
+                let alert = UIAlertController(title: "alert", message: "maximum select limit reached", preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "click", style: UIAlertActionStyle.cancel, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+            
+            }
+            else
+            {
+            
+                let cell = self.carsCollection.cellForItem(at: indexPath)
+                cell?.backgroundColor = UIColor.black
+            
+                if !(cellsToBeDeleted.contains(indexPath))
+                {
+            
+       
+                    cellsToBeDeleted.append(indexPath)
+                    selectCountLabel.text = "\(cellsToBeDeleted.count)"
+                }
+            
+            }
+        }
+           
+        //When a cell is selected with deleteModeOff this block of code is called
+        else
+        {
+            
+            self.carsCollection.cellForItem(at: indexPath)?.alpha = 0.5
+            selectedCellIndexPath = indexPath
+            
+        }
+        
+
+        
     }
     
+    //defining what to do when DeSelecting a cell
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath){
         
-        let cell = self.carsCollection.cellForItem(at: indexPath)
-        cell?.backgroundColor = UIColor.lightGray
-        selectedCellsIndexPath.remove(at: selectedCellsIndexPath.index(of: indexPath)!)
+        if deleteMode == .on
+        {
+            let cell = self.carsCollection.cellForItem(at: indexPath)
+            cell?.backgroundColor = UIColor.lightGray
+            cellsToBeDeleted.remove(at: cellsToBeDeleted.index(of: indexPath)!)
+            selectCountLabel.text = "\(cellsToBeDeleted.count)"
         
-        if selectedCellsIndexPath.isEmpty{
+            if cellsToBeDeleted.isEmpty{
             
-           deleteToChangeView()
-            
+                deleteToChangeView()
+                
+            }
         }
         
     }
     
-    func selecetCell(gesture : UILongPressGestureRecognizer!){
+    //Function to define the working of longPressGesture
+    func selecetCellOnLongPress(gesture : UILongPressGestureRecognizer!)
+    {
         
-        if gesture.state == .ended {
+        if gesture.state == .ended
+        {
             return
         }
+
+        deleteMode = .on
 
         changeViewToDelete()
         
         let p = gesture.location(in: self.carsCollection)
 
-        if let indexPath = self.carsCollection.indexPathForItem(at: p) {
+        if let indexPath = self.carsCollection.indexPathForItem(at: p)
+        {
 
-        carsCollection.selectItem(at: indexPath, animated: true, scrollPosition: .top)
-        collectionView(carsCollection, didSelectItemAt: indexPath)
+            carsCollection.selectItem(at: indexPath, animated: true, scrollPosition: .top)
+            collectionView(carsCollection, didSelectItemAt: indexPath)
 
             
-        } else {
+        }
+        else
+        {
             print("couldn't find index path") 
         }
     }
 
    
         
-    }
+}
+
+//defining an enum for DeleteMode
+enum DeleteMode{
     
+    case on, off
     
-
-
-
-// defining an enum for flow
+}
+// defining an enum for Flow
 enum Flow {
     
     case list,grid
