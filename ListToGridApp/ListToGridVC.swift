@@ -181,6 +181,10 @@ extension ListToGridVC : UICollectionViewDelegate , UICollectionViewDataSource ,
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GridCellID", for: indexPath) as! GridCell
             cell.configureCell(withCar: car)
             cell.layer.borderWidth = 1
+            
+            if cellsToBeDeleted.contains(indexPath){
+            cell.backgroundColor = .black
+            }
             cell.layer.borderColor = UIColor.black.cgColor
             print("grid made")
             
@@ -195,6 +199,9 @@ extension ListToGridVC : UICollectionViewDelegate , UICollectionViewDataSource ,
             cell.layer.borderWidth = 1
             cell.layer.borderColor = UIColor.black.cgColor
 
+            if cellsToBeDeleted.contains(indexPath){
+                cell.backgroundColor = .black
+            }
             print("list made")
 
             return cell
